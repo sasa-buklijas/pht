@@ -7,11 +7,31 @@ use reqwest;
 use std::time::Instant;
 use clap::Parser;
 
-fn download_file_to(url: &str, to: &str) {
+// this is fine if you download only one file,
+// for multiple files better is to make reqwest::blocking::Client::
+// my experience is 3x performance for 50 files
+fn _download_file_to(url: &str, to: &str) {
     let resp = reqwest::blocking::get(url).unwrap();
     let body = resp.text().unwrap();
     let mut out = File::create(to).unwrap();
     io::copy(&mut body.as_bytes(), &mut out).unwrap();
+}
+
+struct Download {
+    client: reqwest::blocking::Client,
+}
+
+impl Download {
+    fn new() -> Download {
+        Download{ client: reqwest::blocking::Client::builder().build().unwrap(), }
+    }
+    
+    fn download_file_to(&self, url: &str, to: &str) {
+        let resp = self.client.get(url).send().unwrap();
+        let body = resp.text().unwrap();
+        let mut out = File::create(to).unwrap();
+        io::copy(&mut body.as_bytes(), &mut out).unwrap();
+    }
 }
 
 #[derive(Parser, Default, Debug)]
@@ -40,6 +60,8 @@ fn main() {
         exit(5);
     }
 
+    let downloader = Download::new();
+
     // make dir
     let now = chrono::offset::Local::now();
     let custom_datetime_format = now.format("%Y%m%y_%H%M%S");
@@ -63,7 +85,7 @@ fn main() {
         for item in &to_download {
             let url = format!("{}/{}", "https://www.hps.hr/karta/csv/", item);  
             let file_path = format!("{}/{}", custom_datetime_format, item);  
-            download_file_to(&url, &file_path);
+            downloader.download_file_to(&url, &file_path);
         }
         let duration = start.elapsed();
         println!("Download of {:?} took: {:?}", to_download, duration);
@@ -84,7 +106,7 @@ fn main() {
         for file in &gpx_files {
             let url = format!("{}/{}", "https://www.hps.hr/karta/gpx/", file);
             let file_path = format!("{}/{}", custom_datetime_format, file);
-            download_file_to(&url, &file_path)
+            downloader.download_file_to(&url, &file_path); 
         }
         let duration = start.elapsed();
         println!("Download of {} GPX files took: {:?}", gpx_files.len(), duration);
