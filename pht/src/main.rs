@@ -15,19 +15,19 @@ fn download_file_to(url: &str, to: &str) {
 }
 
 #[derive(Parser, Default, Debug)]
-#[clap(author="Sasa Buklijas", version, about="Download data")]
+#[clap(author="Sasa Buklijas", version, about="Download data. All parameters are optional.")]
 struct Arguments {
     #[clap(short, long, default_value_t = false)]
-    /// if areas.csv to download
+    /// areas.csv to download, default No
     areas: bool,
     #[clap(short, long, default_value_t = false)]
-    /// if markers.csv to download
+    /// markers.csv to download, default No
     markers: bool,
     #[clap(short, long, default_value_t = false)]
-    /// if tracks.csv to download
+    /// tracks.csv to download, default No
     tracks: bool,
     #[clap(short, long)]
-    /// path to file of GPS tracks to download
+    /// path to file of GPS tracks to download, default No
     gpx_list_file: Option<String>,
 }
 
