@@ -135,6 +135,7 @@ fn main() {
         let end;
         let len_gpx_tracks_lines = gpx_tracks_lines.len();
         if len_gpx_tracks_lines == 1 {
+            // TODO: add all option to download all, start=1, end. u32.max. Not best but fine
             start = gpx_tracks_lines[0].parse::<i32>().unwrap();
             end = gpx_tracks_lines[0].parse::<i32>().unwrap();
         } else if len_gpx_tracks_lines == 2 {
@@ -169,12 +170,13 @@ fn main() {
                 let record = record.unwrap();
                 //println!("{}  ---  {:?}", line_counter, record);
 
-                let trail_name = record[2].to_string().replace(" ", "_");
+                let trail_name = record[2].to_string().replace(" ", "_").replace(":", "_").replace("/", "_");
                 let area_name = record[4].to_string();
                 let gpx_filename = record[0].to_string();
                 //println!("{} --- {} --- {}", trail_name, area_name, gpx_filename);
                 //let file = format!("{}/{}___{}", custom_datetime_format, area_name, trail_name);
                 
+                // FIXME: just {}{} / is already there, but it is working fine with it also working fine, do not know why, or maybe just to leave it 
                 let url: String = format!("{}/{}", "https://www.hps.hr/karta/gpx/", gpx_filename);
                 let file_path = format!("{}/{}___{}.gpx", custom_datetime_format, area_name, trail_name);
                 //println!("{} --- {}", url, file_path);
